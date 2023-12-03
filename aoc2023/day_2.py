@@ -1,7 +1,6 @@
 from __future__ import annotations
-from typing import NamedTuple, Literal, Iterable
+from typing import NamedTuple, Literal
 import re
-from itertools import chain, combinations
 from functools import reduce
 from load import load_input
 
@@ -76,11 +75,6 @@ def validate_game_one(game: Game, reds: int, greens: int, blues: int) -> int:
     if max_reds > reds or max_greens > greens or max_blues > blues:
         return 0
     return game.game_id
-
-
-def powerset(i: Iterable):
-    s = list(i)
-    return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
 
 
 def validate_game_two(game: Game, reds: int, greens: int, blues: int) -> int:
