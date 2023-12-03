@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import NamedTuple, Literal
+from typing import NamedTuple, Literal, Iterable
 import re
+from itertools import chain, combinations
+from functools import reduce
 from load import load_input
 
 
@@ -57,7 +59,7 @@ def parse_game(gamestr: str, games: list[Game]):
     return games
 
 
-def validate_game(game: Game, reds: int, greens: int, blues: int) -> int:
+def validate_game_one(game: Game, reds: int, greens: int, blues: int) -> int:
     max_reds = 0
     max_greens = 0
     max_blues = 0
@@ -76,6 +78,41 @@ def validate_game(game: Game, reds: int, greens: int, blues: int) -> int:
     return game.game_id
 
 
+def powerset(i: Iterable):
+    s = list(i)
+    return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
+
+
+def validate_game_two(game: Game, reds: int, greens: int, blues: int) -> int:
+    """
+    Game 1:
+        r   g   b
+        4   0   3
+        1   2   6
+        0   2   0
+        ---------
+        4   2   6
+    """
+    max_reds = 0
+    max_greens = 0
+    max_blues = 0
+
+    result = []
+
+    for game_selection in game.game_values:
+        for game_value in game_selection:
+            if game_value[1] == "red":
+                max_reds = max(game_value[0], max_reds)
+            if game_value[1] == "green":
+                max_greens = max(game_value[0], max_greens)
+            if game_value[1] == "blue":
+                max_blues = max(game_value[0], max_blues)
+
+        result = [max_reds, max_greens, max_blues]
+
+    return reduce((lambda n, m: n * m), result)
+
+
 def main() -> None:
     with load_input(2) as file:
         inputs = [line.rstrip("\n") for line in file]
@@ -86,7 +123,14 @@ def main() -> None:
 
         game_results = []
         for game in games:
-            result = validate_game(game, reds=12, greens=13, blues=14)
+            result = validate_game_one(game, reds=12, greens=13, blues=14)
+            game_results.append(result)
+
+        print(sum(game_results))
+
+        game_results = []
+        for game in games:
+            result = validate_game_two(game, reds=12, greens=13, blues=14)
             game_results.append(result)
 
         print(sum(game_results))
